@@ -1,0 +1,23 @@
+name: Windows build and tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore SoundTouchStereoBridge.sln
+      - run: dotnet build SoundTouchStereoBridge.sln --configuration Release --no-restore
+      - run: dotnet test tests/StereoBridge.Core.Tests/StereoBridge.Core.Tests.csproj --configuration Release --no-build --no-restore --logger trx --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: TestResults/*.trx
