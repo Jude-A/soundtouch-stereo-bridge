@@ -62,6 +62,8 @@ Volume, balance, devices and latency mode are shared across profiles. Existing s
 
 **Closing or minimizing hides the window; it does not stop the audio.** Double-click the tray icon to reopen it. Use **Quitter** in the tray menu to exit completely.
 
+Right-click the tray icon and choose **Créer un raccourci sur le bureau** to create a desktop shortcut with the app icon. Running it again updates the same shortcut. If you move the application folder, use this command again from its new location.
+
 The **Démarrage et zone de notification** section has three independent options, all off by default:
 
 | Option | Effect |

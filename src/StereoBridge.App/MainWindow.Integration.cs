@@ -36,6 +36,7 @@ public partial class MainWindow
         menu.Items.Add(_trayStart);
         menu.Items.Add(_trayStop);
         menu.Items.Add(new Forms.ToolStripSeparator());
+        menu.Items.Add("Créer un raccourci sur le bureau", null, (_, _) => CreateDesktopShortcut());
         menu.Items.Add(_trayExit);
         _tray.ContextMenuStrip = menu;
         _tray.DoubleClick += (_, _) => ShowFromTray();
@@ -72,6 +73,52 @@ public partial class MainWindow
         Show();
         WindowState = WindowState.Normal;
         Activate();
+    }
+
+    private void CreateDesktopShortcut()
+    {
+        object? shell = null;
+        object? shortcut = null;
+        try
+        {
+            var executable = Environment.ProcessPath
+                ?? throw new InvalidOperationException("Chemin de l’application indisponible.");
+            if (System.IO.Path.GetFileNameWithoutExtension(executable).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+            {
+                executable = System.IO.Path.ChangeExtension(typeof(App).Assembly.Location, ".exe");
+            }
+            if (!System.IO.File.Exists(executable))
+                throw new InvalidOperationException("L’exécutable est introuvable. Compile l’application avant de créer le raccourci.");
+
+            var desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            if (string.IsNullOrWhiteSpace(desktop))
+                throw new InvalidOperationException("Le dossier Bureau est indisponible.");
+            System.IO.Directory.CreateDirectory(desktop);
+            var shortcutPath = System.IO.Path.Combine(desktop, "SoundTouch Stereo Bridge.lnk");
+            var shellType = Type.GetTypeFromProgID("WScript.Shell")
+                ?? throw new InvalidOperationException("Le service Windows de création de raccourcis est indisponible.");
+            shell = Activator.CreateInstance(shellType)!;
+            shortcut = ((dynamic)shell).CreateShortcut(shortcutPath);
+            dynamic link = shortcut;
+            link.TargetPath = executable;
+            link.Arguments = string.Empty;
+            link.WorkingDirectory = System.IO.Path.GetDirectoryName(executable);
+            link.IconLocation = executable + ",0";
+            link.Description = "Lancer SoundTouch Stereo Bridge";
+            link.Save();
+            SetStatus("Raccourci créé ou mis à jour sur le bureau.");
+            _tray.ShowBalloonTip(4000, "SoundTouch Stereo Bridge", "Raccourci créé ou mis à jour sur le bureau.", Forms.ToolTipIcon.Info);
+        }
+        catch (Exception error)
+        {
+            SetStatus($"Impossible de créer le raccourci : {error.Message}", isError: true);
+            _tray.ShowBalloonTip(6000, "Raccourci non créé", error.Message, Forms.ToolTipIcon.Error);
+        }
+        finally
+        {
+            if (shortcut is not null) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shortcut);
+            if (shell is not null) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell);
+        }
     }
 
     private void StartupOptions_Click(object sender, RoutedEventArgs e)
