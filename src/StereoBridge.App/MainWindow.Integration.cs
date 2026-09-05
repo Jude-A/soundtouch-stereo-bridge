@@ -62,7 +62,9 @@ public partial class MainWindow
         _tray.ContextMenuStrip = menu;
         _tray.MouseClick += (_, e) =>
         {
-            if (e.Button == Forms.MouseButtons.Left) ShowFromTray();
+            if (e.Button != Forms.MouseButtons.Left) return;
+            if (IsVisible) Hide();
+            else ShowFromTray();
         };
         _trayStart.Click += (_, _) => { if (!_isCalibrating) { _wantRunning = true; RefreshDevices(); StartStereo(); } };
         _trayStop.Click += (_, _) => { if (!_isCalibrating) StopButton_Click(this, new RoutedEventArgs()); };

@@ -60,7 +60,7 @@ Volume, balance, devices and latency mode are shared across profiles. Existing s
 
 ## Keep it running in the background
 
-**Closing or minimizing hides the window; it does not stop the audio.** Left-click the tray icon once to reopen it. Use **Quitter** in the tray menu to exit completely.
+**Closing or minimizing hides the window; it does not stop the audio.** Left-click the tray icon to show or hide the window. Use **Quitter** in the tray menu to exit completely.
 
 The tray menu also lets you choose **Stable**, **Équilibré** or **Vidéo · tampon minimal**, with a checkmark on the selected mode. Changes are saved and restart active playback, just like the window control. This choice is disabled during auto-calibration.
 
