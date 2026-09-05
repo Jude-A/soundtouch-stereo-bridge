@@ -280,6 +280,7 @@ public partial class MainWindow : Window
 
         _config.LatencyProfile = profile;
         _config.Save();
+        UpdateTrayLatency();
         UpdateLatencyHint();
 
         if (!_engine.IsRunning)
@@ -406,6 +407,7 @@ public partial class MainWindow : Window
         LeftDeviceBox.IsEnabled = !isRunning;
         RightDeviceBox.IsEnabled = !isRunning;
         LatencyProfileBox.IsEnabled = !_isCalibrating;
+        UpdateTrayLatency();
     }
 
     private void AdjustDelay(StereoSide side, double deltaMilliseconds)

@@ -60,7 +60,9 @@ Volume, balance, devices and latency mode are shared across profiles. Existing s
 
 ## Keep it running in the background
 
-**Closing or minimizing hides the window; it does not stop the audio.** Double-click the tray icon to reopen it. Use **Quitter** in the tray menu to exit completely.
+**Closing or minimizing hides the window; it does not stop the audio.** Left-click the tray icon once to reopen it. Use **Quitter** in the tray menu to exit completely.
+
+The tray menu also lets you choose **Stable**, **Équilibré** or **Vidéo · tampon minimal**, with a checkmark on the selected mode. Changes are saved and restart active playback, just like the window control. This choice is disabled during auto-calibration.
 
 Right-click the tray icon and choose **Créer un raccourci sur le bureau** to create a desktop shortcut with the app icon. Running it again updates the same shortcut. If you move the application folder, use this command again from its new location.
 

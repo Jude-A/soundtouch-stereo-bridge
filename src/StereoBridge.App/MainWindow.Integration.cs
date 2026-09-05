@@ -12,6 +12,7 @@ public partial class MainWindow
     private readonly Forms.NotifyIcon _tray = new();
     private readonly Forms.ToolStripMenuItem _trayStart = new("Démarrer le bridge");
     private readonly Forms.ToolStripMenuItem _trayStop = new("Arrêter le bridge");
+    private readonly Dictionary<LatencyProfile, Forms.ToolStripMenuItem> _trayLatencyItems = new();
     private readonly Forms.ToolStripMenuItem _trayExit = new("Quitter");
     private readonly DispatcherTimer _deviceTimer = new() { Interval = TimeSpan.FromSeconds(5) };
     private bool _wantRunning;
@@ -36,10 +37,33 @@ public partial class MainWindow
         menu.Items.Add(_trayStart);
         menu.Items.Add(_trayStop);
         menu.Items.Add(new Forms.ToolStripSeparator());
+        menu.Items.Add(new Forms.ToolStripMenuItem("Profil de latence") { Enabled = false });
+        foreach (var (profile, label) in new[]
+        {
+            (LatencyProfile.Stable, "Stable"),
+            (LatencyProfile.Balanced, "Équilibré"),
+            (LatencyProfile.LowLatency, "Vidéo · tampon minimal"),
+        })
+        {
+            var item = new Forms.ToolStripMenuItem(label);
+            item.Click += (_, _) =>
+            {
+                if (!_isCalibrating && _config.LatencyProfile != profile)
+                    LatencyProfileBox.SelectedValue = profile;
+            };
+            _trayLatencyItems.Add(profile, item);
+            menu.Items.Add(item);
+        }
+        UpdateTrayLatency();
+        menu.Opening += (_, _) => UpdateTrayLatency();
+        menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Créer un raccourci sur le bureau", null, (_, _) => CreateDesktopShortcut());
         menu.Items.Add(_trayExit);
         _tray.ContextMenuStrip = menu;
-        _tray.DoubleClick += (_, _) => ShowFromTray();
+        _tray.MouseClick += (_, e) =>
+        {
+            if (e.Button == Forms.MouseButtons.Left) ShowFromTray();
+        };
         _trayStart.Click += (_, _) => { if (!_isCalibrating) { _wantRunning = true; RefreshDevices(); StartStereo(); } };
         _trayStop.Click += (_, _) => { if (!_isCalibrating) StopButton_Click(this, new RoutedEventArgs()); };
         _trayExit.Click += (_, _) => { if (!_isCalibrating) { _exiting = true; Close(); } };
@@ -61,6 +85,15 @@ public partial class MainWindow
         catch (Exception error) { SetStatus(error.Message, true); }
         RefreshProfileControls();
         SetRunningState(false);
+    }
+
+    private void UpdateTrayLatency()
+    {
+        foreach (var (profile, item) in _trayLatencyItems)
+        {
+            item.Checked = _config.LatencyProfile == profile;
+            item.Enabled = !_isCalibrating;
+        }
     }
 
     private void SaveEndpointSelection(object sender, SelectionChangedEventArgs e)
