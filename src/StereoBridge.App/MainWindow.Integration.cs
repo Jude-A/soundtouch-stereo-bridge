@@ -25,7 +25,11 @@ public partial class MainWindow
         LeftDeviceBox.SelectionChanged += SaveEndpointSelection;
         RightDeviceBox.SelectionChanged += SaveEndpointSelection;
         System.Windows.Application.Current.SessionEnding += (_, _) => _exiting = true;
-        _tray.Icon = System.Drawing.SystemIcons.Application;
+        using (var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/app-icon.ico")).Stream)
+        using (var icon = new System.Drawing.Icon(resource))
+        {
+            _tray.Icon = (System.Drawing.Icon)icon.Clone();
+        }
         _tray.Text = "SoundTouch Stereo Bridge · arrêté";
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Ouvrir", null, (_, _) => ShowFromTray());

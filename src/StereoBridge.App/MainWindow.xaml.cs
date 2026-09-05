@@ -390,7 +390,9 @@ public partial class MainWindow : Window
     {
         _deviceTimer.Stop();
         _tray.Visible = false;
+        var trayIcon = _tray.Icon;
         _tray.Dispose();
+        trayIcon?.Dispose();
         _diagnosticsTimer.Stop();
         _windowsVolumeTimer.Stop();
         SaveConfig();
