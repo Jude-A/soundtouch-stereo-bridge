@@ -29,7 +29,7 @@ You need **two independently connected speakers**, [VB-CABLE](https://vb-audio.c
    dotnet run --project .\src\StereoBridge.App\StereoBridge.App.csproj
    ```
 
-4. Select the left and right speakers, then click **Démarrer la stéréo**.
+4. Check the suggested Bose speakers and their left/right assignments, then click **Démarrer la stéréo**. VB-CABLE outputs are excluded from speaker selection.
 5. Use **Test G → D** to check the channel assignments.
 
 **Audio path:** Windows → VB-CABLE → Stereo Bridge → left and right speakers.
@@ -71,6 +71,8 @@ The **Démarrage et zone de notification** section has three independent options
 | Automatic bridge start/reconnection | Waits for VB-CABLE and the two saved speakers. A manual stop suspends retries for the session. |
 | Launch in tray | Starts with the window hidden. |
 | Launch with Windows | Starts the app when you sign in. Enable automatic bridge start separately for audio. |
+
+Automatic selection preserves a valid saved pair. If the saved pair is incomplete or contains a virtual cable, it prioritizes Bose/SoundTouch speakers instead of guessing another output. A unique matching name can recover a speaker whose ID changed; an absent remembered Bose remains unselected. The app cannot infer physical left/right placement: confirm it with **Test G → D**.
 
 Configure the speakers before enabling automatic start. If Bluetooth re-pairing changes a device's ID, select it again. A renamed VB-CABLE endpoint may require manual startup.
 

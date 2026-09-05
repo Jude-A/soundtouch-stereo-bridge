@@ -337,19 +337,23 @@ public partial class MainWindow : Window
             _hasWindowsEndpointLevel = false;
             SourceText.Text = source?.Name ?? "No default render endpoint";
 
-            var outputs = _devices.Where(device => !device.IsDefault).ToArray();
+            var outputs = SpeakerSelection.Outputs(_devices);
             LeftDeviceBox.ItemsSource = outputs;
             RightDeviceBox.ItemsSource = outputs;
 
-            LeftDeviceBox.SelectedValue = SelectEndpoint(previousLeftId, outputs, excludedId: null)?.Id;
-            RightDeviceBox.SelectedValue = SelectEndpoint(previousRightId, outputs, LeftDeviceBox.SelectedValue as string)?.Id;
+            var pair = SpeakerSelection.Select(_devices, previousLeftId, previousRightId,
+                _config.LeftFriendlyName, _config.RightFriendlyName);
+            LeftDeviceBox.SelectedValue = pair.Left?.Id;
+            RightDeviceBox.SelectedValue = pair.Right?.Id;
 
             RefreshWindowsVolume(forceApply: true);
 
-            SetStatus(outputs.Length >= 2
-                ? $"{outputs.Length} sorties audio disponibles."
-                : "Deux sorties sont nécessaires. Connecte la seconde enceinte, puis actualise.",
-                isError: outputs.Length < 2);
+            if (pair.Left is null || pair.Right is null)
+                SetStatus("Une enceinte manque ou reste à sélectionner. Connecte les Bose puis actualise ; aucune sortie de remplacement n’est choisie.");
+            else if (source is not null && !SpeakerSelection.IsCable(source))
+                SetStatus("Enceintes sélectionnées. Choisis VB-CABLE comme sortie Windows par défaut, puis actualise.");
+            else
+                SetStatus($"Enceintes : gauche « {pair.Left.Name} », droite « {pair.Right.Name} ». Vérifie leur position avec le test G → D.");
         }
         catch (Exception error)
         {
@@ -357,21 +361,6 @@ public partial class MainWindow : Window
             SetStatus($"Impossible d’énumérer les périphériques audio : {error.Message}", isError: true);
         }
         finally { _refreshingDevices = false; }
-    }
-
-    private static AudioDeviceInfo? SelectEndpoint(
-        string? preferredId,
-        IReadOnlyList<AudioDeviceInfo> outputs,
-        string? excludedId)
-    {
-        var available = outputs.Where(device => !string.Equals(device.Id, excludedId, StringComparison.Ordinal));
-        if (preferredId is not null)
-            return available.FirstOrDefault(device => string.Equals(device.Id, preferredId, StringComparison.Ordinal));
-        return available.FirstOrDefault(device => string.Equals(device.Id, preferredId, StringComparison.Ordinal))
-            ?? available.FirstOrDefault(device =>
-                device.Name.Contains("SoundTouch", StringComparison.CurrentCultureIgnoreCase) ||
-                device.Name.Contains("Bose", StringComparison.CurrentCultureIgnoreCase))
-            ?? available.FirstOrDefault();
     }
 
     private void OnPlaybackFaulted(object? sender, string message)

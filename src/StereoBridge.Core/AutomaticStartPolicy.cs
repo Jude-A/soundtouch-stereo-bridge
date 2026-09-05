@@ -6,10 +6,9 @@ public static class AutomaticStartPolicy
     {
         var source = devices.FirstOrDefault(d => d.IsDefault);
         return source is not null &&
-               (source.Name.Contains("VB-Audio", StringComparison.OrdinalIgnoreCase) ||
-                source.Name.Contains("VB-CABLE", StringComparison.OrdinalIgnoreCase)) &&
+               SpeakerSelection.IsCable(source) &&
                leftId is not null && rightId is not null && leftId != rightId &&
-               devices.Any(d => d.Id == leftId && !d.IsDefault) &&
-               devices.Any(d => d.Id == rightId && !d.IsDefault);
+               devices.Any(d => d.Id == leftId && !d.IsDefault && !SpeakerSelection.IsCable(d)) &&
+               devices.Any(d => d.Id == rightId && !d.IsDefault && !SpeakerSelection.IsCable(d));
     }
 }
